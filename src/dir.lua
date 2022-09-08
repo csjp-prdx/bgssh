@@ -1,5 +1,3 @@
-#!/opt/homebrew/bin/lua
-
 local getch  = require "lua-getch"
 local lfs    = require "lfs"
 local term   = require 'term'
@@ -183,5 +181,5 @@ function ShowLog()
     io.write("\n")
 end
 
-print(SelectFile())
+-- print(SelectFile())
 -- ShowLog()
