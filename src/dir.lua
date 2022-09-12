@@ -8,11 +8,42 @@ local WIN = {}
 WIN.h = tonumber(io.popen("tput lines"):read()) - 1
 WIN.w = tonumber(io.popen("tput cols"):read()) - 1
 WIN.v_offset = 0
+WIN.frame = false
 local LOG = {}
 
 local dir = {}
 local loc = lfs.currentdir()
 local sel = 1
+
+function ShowLog()
+    io.write("+")
+    for i = WIN.w, 2, -1 do
+        io.write("-")
+    end
+    io.write("\n")
+    for _, item in ipairs(LOG) do
+        print("|", item)
+    end
+    io.write("+")
+    for i = WIN.w, 2, -1 do
+        io.write("-")
+    end
+    io.write("\n")
+end
+
+function SetWIN(w, h)
+    WIN.w = tonumber(w)
+    WIN.h = tonumber(h)
+end
+
+function ClearSelect()
+    term.cursor.goup(WIN.h)
+    for i = 1, WIN.h, 1 do
+        term.cleareol()
+        print()
+    end
+    term.cursor.goup(WIN.h)
+end
 
 function GetDir(loc)
     table.insert(LOG, "GetDir(): '" .. loc .. "'")
@@ -85,7 +116,8 @@ function ShowDir()
     assert(next(dir) ~= nil)
     local prefix
     local body
-    term.clear()
+
+    term.cursor.goup(WIN.h)
 
     if WIN.v_offset > 0 then
         for i, item in ipairs(dir) do
@@ -102,11 +134,18 @@ function ShowDir()
                     body = item[1]
                 end
 
+                term.cleareol()
                 print(prefix .. body)
             end
             if (i - WIN.v_offset) == WIN.h then break end
         end
     else
+        if #dir < WIN.h then
+            for i = 1, WIN.h - #dir, 1 do
+                term.cleareol()
+                print()
+            end
+        end
         for i, item in ipairs(dir) do
             if i == sel then
                 prefix = colors.blue .. " ➜ " .. colors.reset
@@ -119,6 +158,8 @@ function ShowDir()
             else
                 body = item[1]
             end
+
+            term.cleareol()
             print(prefix .. body)
             if i == WIN.h then break end
         end
@@ -129,6 +170,7 @@ function SelectFile()
     local file
     table.insert(LOG, "SelectFile().")
     Select()
+    term.cursor.godown(WIN.h)
     ShowDir()
 
     while true do
@@ -148,6 +190,7 @@ function SelectFile()
             elseif resolved == "enter" then
                 file = Select()
                 if file ~= false then
+                    ClearSelect()
                     break
                 end
             end
@@ -161,25 +204,7 @@ function SelectFile()
         end
         -- term.cursor.goup(#dir)
     end
-    term.clear()
     return file
 end
 
-function ShowLog()
-    io.write("+")
-    for i = WIN.w, 2, -1 do
-        io.write("-")
-    end
-    io.write("\n")
-    for _, item in ipairs(LOG) do
-        print("|", item)
-    end
-    io.write("+")
-    for i = WIN.w, 2, -1 do
-        io.write("-")
-    end
-    io.write("\n")
-end
-
--- print(SelectFile())
--- ShowLog()
+print(SelectFile())
