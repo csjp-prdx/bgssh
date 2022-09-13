@@ -206,5 +206,3 @@ function SelectFile()
     end
     return file
 end
-
-print(SelectFile())
