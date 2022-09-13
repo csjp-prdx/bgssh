@@ -123,7 +123,7 @@ function ShowDir()
         for i, item in ipairs(dir) do
             if i > WIN.v_offset then
                 if i == sel then
-                    prefix = colors.blue .. " ➜ " .. colors.reset
+                    prefix = colors.blue .. "➜ " .. colors.reset
                 else
                     prefix = "  "
                 end
