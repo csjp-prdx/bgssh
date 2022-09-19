@@ -193,6 +193,8 @@ function SelectFile()
                     ClearSelect()
                     break
                 end
+            elseif resolved == "escape" then
+                break
             end
 
             ShowDir()

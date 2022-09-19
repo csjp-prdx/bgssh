@@ -12,7 +12,7 @@ local WIN = {}
 WIN.h = tonumber(io.popen("tput lines"):read()) - 1
 WIN.w = tonumber(io.popen("tput cols"):read()) - 1
 
-function ShowList(list, list_dirty, sel, mode)
+function ShowList(list, list_dirty, sel, mode, msg)
     local prefix
     local item
 
@@ -42,10 +42,17 @@ function ShowList(list, list_dirty, sel, mode)
 
         print(string.format("%s %8s: %s", prefix, v[1], item))
     end
+
+    if msg ~= nil then
+        print("|--MSG--> ", msg)
+    else
+        term.cleareol()
+        print("|--> ")
+    end
 end
 
 function EditEntry(list, list_dirty, sel)
-    term.cursor.goup(#list + 1)
+    term.cursor.goup(#list + 2)
     ShowList(list, list_dirty, sel, "edit")
 
     while true do
@@ -67,7 +74,7 @@ function EditEntry(list, list_dirty, sel)
             list[sel][3] = list[sel][3] .. string.char(seq[1])
         end
 
-        term.cursor.goup(#list + 1)
+        term.cursor.goup(#list + 2)
         ShowList(list, list_dirty, sel, "edit")
     end
 end
@@ -78,6 +85,7 @@ function ManageList(list)
         table.insert(list_dirty, false)
     end
     local sel = 1
+    local msg
 
     ShowList(list, list_dirty, sel, "select")
 
@@ -91,11 +99,15 @@ function ManageList(list)
             elseif resolved == "down" and sel < #list then
                 sel = sel + 1
             elseif resolved == "enter" then
+                if msg ~= nil then msg = nil end
                 if list[sel][2] == "string" then
                     EditEntry(list, list_dirty, sel)
                 elseif list[sel][2] == "file" then
-                    list[sel][3] = SelectFile()
-                    list_dirty[sel] = true
+                    local file = SelectFile()
+                    if file ~= nil then
+                        list[sel][3] = file
+                        list_dirty[sel] = true
+                    end
                 end
             end
         else
@@ -104,27 +116,29 @@ function ManageList(list)
             if char == 'q' then
                 break
             elseif char == 'c' then
+                if msg ~= nil then msg = nil end
                 local val = os.execute(string.format("ssh -fo ExitOnForwardFailure=yes -i \"%s\" %s@%s -N -L 8000:localhost:80 2>/dev/null"
                     ,
                     list[3][3], list[1][3], list[2][3])
                 )
                 if val == true then
-                    print("Failed to connect")
                     break
+                else
+                    msg = "Failed to connect"
                 end
             end
         end
 
-        term.cursor.goup(#list + 1)
-        ShowList(list, list_dirty, sel, "select")
+        term.cursor.goup(#list + 2)
+        ShowList(list, list_dirty, sel, "select", msg)
     end
 
-    term.cursor.goup(#list + 1)
+    term.cursor.goup(#list + 2)
     for i = 1, #list, 1 do
         term.cleareol()
         print()
     end
-    term.cursor.goup(#list + 1)
+    term.cursor.goup(#list + 2)
 end
 
 function Main()
