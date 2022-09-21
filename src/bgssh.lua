@@ -1,5 +1,8 @@
+#!/usr/bin/env lua
+
 require "conf"
 require "dir"
+
 local term   = require 'term'
 local colors = term.colors
 local getch  = require "lua-getch"
@@ -86,6 +89,7 @@ function ManageList(list)
     end
     local sel = 1
     local msg
+    local ret
 
     ShowList(list, list_dirty, sel, "select")
 
@@ -103,7 +107,7 @@ function ManageList(list)
                 if list[sel][2] == "string" then
                     EditEntry(list, list_dirty, sel)
                 elseif list[sel][2] == "file" then
-                    local file = SelectFile()
+                    local file = SelectFile({ h = 5 })
                     if file ~= nil then
                         list[sel][3] = file
                         list_dirty[sel] = true
@@ -117,15 +121,19 @@ function ManageList(list)
                 break
             elseif char == 'c' then
                 if msg ~= nil then msg = nil end
-                local val = os.execute(string.format("ssh -fo ExitOnForwardFailure=yes -i \"%s\" %s@%s -N -L 8000:localhost:80 2>/dev/null"
+                local val = os.execute(string.format("ssh -fo ExitOnForwardFailure=yes -i \"%s\" %s@%s -N -L 8000:localhost:80 2>/tmp/bgssh.err"
                     ,
                     list[3][3], list[1][3], list[2][3])
                 )
-                if val == true then
-                    break
-                else
-                    msg = "Failed to connect"
+                os.execute("open http://localhost:8000/gr99se/index.php")
+                if val ~= true then
+                    local ef = io.open("/tmp/bgssh.err")
+                    if ef ~= nil then
+                        ret = ef:read("*all")
+                        ef:close()
+                    end
                 end
+                break
             end
         end
 
@@ -139,6 +147,7 @@ function ManageList(list)
         print()
     end
     term.cursor.goup(#list + 2)
+    return ret
 end
 
 function Main()
@@ -147,7 +156,10 @@ function Main()
         conf = GenConf({ { "USERNAME", "string" }, { "HOST", "string" }, { "KEY", "file" } })
     end
 
-    ManageList(conf)
+    local msg = ManageList(conf)
+    if msg ~= nil then
+        os.execute(string.format("osascript -e 'display notification \"%s\"' &", msg))
+    end
 
     if IsDiffConf(conf, CONF) then
         WriteConf(conf, CONF)

@@ -166,7 +166,16 @@ function ShowDir()
     end
 end
 
-function SelectFile()
+function SelectFile(format)
+    if format ~= nil then
+        if format.w ~= nil then
+            WIN.w = format.w
+        end
+        if format.h ~= nil then
+            WIN.h = format.h
+        end
+    end
+
     local file
     table.insert(LOG, "SelectFile().")
     Select()
@@ -208,3 +217,6 @@ function SelectFile()
     end
     return file
 end
+
+-- TEST
+-- print(SelectFile({ h = 8 }))
