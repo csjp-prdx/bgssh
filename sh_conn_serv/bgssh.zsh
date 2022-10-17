@@ -30,27 +30,27 @@ function getKeyInput() {
     stty sane
     stty -raw
 
-    if [[ "_${1}" != "_quiet" ]]; then
-        if [[ "${TMP_GETCH}" = "1b" ]]; then
-            printf "_escape\n"
-        elif [[ "${TMP_GETCH}" = "9" ]]; then
-            printf "_tab\n"
-        elif [[ "${TMP_GETCH}" = "d" ]]; then
-            printf "_enter\n"
-        elif [[ "${TMP_GETCH}" = "7f" ]]; then
-            printf "_backspace\n"
-        elif [[ "${TMP_GETCH}" = "415b1b" ]]; then
-            printf "_up\n"
-        elif [[ "${TMP_GETCH}" = "425b1b" ]]; then
-            printf "_down\n"
-        elif [[ "${TMP_GETCH}" = "435b1b" ]]; then
-            printf "_right\n"
-        elif [[ "${TMP_GETCH}" = "445b1b" ]]; then
-            printf "_left\n"
-        else
-            print "\x${TMP_GETCH}"
-        fi
+    # if [[ "_${1}" != "_quiet" ]]; then
+    if [[ "$TMP_GETCH" = "1b" ]]; then
+        printf "_escape\n"
+    elif [[ "$TMP_GETCH" = "9" ]]; then
+        printf "_tab\n"
+    elif [[ "$TMP_GETCH" = "d" ]]; then
+        printf "_enter\n"
+    elif [[ "$TMP_GETCH" = "7f" ]]; then
+        printf "_backspace\n"
+    elif [[ "$TMP_GETCH" = "415b1b" ]]; then
+        printf "_up\n"
+    elif [[ "$TMP_GETCH" = "425b1b" ]]; then
+        printf "_down\n"
+    elif [[ "$TMP_GETCH" = "435b1b" ]]; then
+        printf "_right\n"
+    elif [[ "$TMP_GETCH" = "445b1b" ]]; then
+        printf "_left\n"
+    else
+        print "\x${TMP_GETCH}"
     fi
+    # fi
     return ${STAT_GETCH}
 }
 
@@ -76,10 +76,10 @@ function readConf() {
 }
 
 function writeConf() {
-    diff $CONF <(printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n\t\"SUBDIR\":\"$subdir\"\n}") >/dev/null 2>&1
+    diff $CONF <(printf "{\n\t\"1\": {\n\t\t\"USERNAME\":\"$username\",\n\t\t\"HOST\":\"$host\",\n\t\t\"KEY\":\"$key\",\n\t\t\"SUBDIR\":\"$subdir\"\n\t}\n}") >/dev/null 2>&1
     if ! [[ "$?" -eq 0 ]]; then
         # If the configuration has not changed, don't save
-        printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n\t\"SUBDIR\":\"$subdir\"\n}" >$CONF
+        printf "{\n\t\"1\": {\n\t\t\"USERNAME\":\"$username\",\n\t\t\"HOST\":\"$host\",\n\t\t\"KEY\":\"$key\",\n\t\t\"SUBDIR\":\"$subdir\"\n\t}\n}" >$CONF
     fi
 }
 
