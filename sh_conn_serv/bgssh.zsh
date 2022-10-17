@@ -198,17 +198,17 @@ function main() {
         done
 
         movePos 0 1
-        [ $SEL = 1 ] && tput el && printf "> Username: $username"
-        [ $PSEL = 1 ] && tput el && printf "  Username: $username"
+        [ $SEL = 1 ] && printf "> " || printf "  "
+        printf "Username: $username"
         movePos 0 1
-        [ $SEL = 2 ] && tput el && printf "> Host:     $host"
-        [ $PSEL = 2 ] && tput el && printf "  Host:     $host"
+        [ $SEL = 2 ] && printf "> " || printf "  "
+        printf "Host:     $host"
         movePos 0 1
-        [ $SEL = 3 ] && tput el && printf "> Key:      $key"
-        [ $PSEL = 3 ] && tput el && printf "  Key:      $key"
+        [ $SEL = 3 ] && printf "> " || printf "  "
+        printf "Key:      $key"
         movePos 0 1
-        [ $SEL = 4 ] && tput el && printf "> SubDir:   $subdir"
-        [ $PSEL = 4 ] && tput el && printf "  SubDir:   $subdir"
+        [ $SEL = 3 ] && printf "> " || printf "  "
+        printf "SubDir:   $subdir"
         movePos 0 -4
     done
 
