@@ -133,7 +133,7 @@ function main() {
 
     movePos 15 1
     tput setaf 3 # Set a foreground colour using ANSI escape
-    printf "Testing v0.1.2.\n"
+    printf "Paradox Ai: TSE Tools.\n"
     tput sgr0
 
     movePos -2 2
