@@ -261,7 +261,7 @@ function SelectFile(format)\
                     break\
                 end\
             elseif resolved == \"escape\" then\
-                break\
+                return nil\
             end\
 \
             ShowDir()\
@@ -389,7 +389,12 @@ function ManageList(list)\
                 if list[sel][2] == \"string\" then\
                     EditEntry(list, list_dirty, sel)\
                 elseif list[sel][2] == \"file\" then\
-                    local file = SelectFile({ h = 5 })\
+                    term.cursor.goup(#list + 2)\
+                    term.cleareol()\
+                    print(\"|--FILE--> SELECT:enter, QUIT:q\")\
+                    local file = SelectFile({ h = 3 })\
+                    term.cursor.godown(1)\
+\
                     if file ~= nil then\
                         list[sel][3] = file\
                         list_dirty[sel] = true\

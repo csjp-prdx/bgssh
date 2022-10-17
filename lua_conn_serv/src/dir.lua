@@ -203,7 +203,7 @@ function SelectFile(format)
                     break
                 end
             elseif resolved == "escape" then
-                break
+                return nil
             end
 
             ShowDir()

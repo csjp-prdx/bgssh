@@ -1,0 +1,80 @@
+#!/bin/zsh
+
+display_center() {
+    columns="$(tput cols)"
+    while IFS= read -r line; do
+        printf "%*s\n" $(((${#line} + columns) / 2)) "$line"
+    done <"$1"
+}
+
+display_right() {
+    columns="$(tput cols)"
+    while IFS= read -r line; do
+        printf "%*s\n" $columns "$line"
+    done <"$1"
+}
+
+clear
+TMP_CONN_INFO="/var/tmp/bgssh.txt"
+
+PID=$(pgrep -f 'L 8000:')
+case $1 in
+"help" | "-h")
+    echo "Usage: $0 [help|reset|close]"
+    echo "  key:\t\tPath to SSH key e.g. \$HOME/key"
+    echo "  username:\tSSH username"
+    exit
+    ;;
+"reset")
+    rm $TMP_CONN_INFO
+    ;;
+"close")
+    kill $PID
+    exit
+    ;;
+*) ;;
+esac
+
+if [ ! -z "${PID// /}" ]; then
+    echo "SSH is already running."
+
+    nmap -p 8000 localhost 2>/dev/null 1>&2 && {
+        read -k1 "?Close and reopen SSH connection? (Y/n): " restart
+        case $restart in
+        "Y")
+            kill $PID
+            ;;
+        "n")
+            open http://localhost:8000/gr99se/index.php
+            exit
+            ;;
+        *)
+            echo "\nInvalid choice."
+            sleep 0.7
+            exit
+            ;;
+        esac
+    } || {
+        kill $PID
+    }
+fi
+
+if [ ! -f $TMP_CONN_INFO ]; then
+    vared -p "key: " -c key
+    vared -p "username: " -c username
+    echo "$key\n$username" >>$TMP_CONN_INFO
+else
+    key=$(head -n 1 $TMP_CONN_INFO)
+    username=$(head -n 2 $TMP_CONN_INFO | tail -n 1)
+fi
+key=$(eval "echo "$key)
+
+if [ -z "${key// /}" ]; then
+    echo "Invalid key."
+fi
+if [ -z "${username// /}" ]; then
+    echo "Invalid username."
+fi
+
+$(ssh -fo ExitOnForwardFailure=yes -i "$key" "$username"@34.221.74.121 -N -L 8000:localhost:80)
+open http://localhost:8000/gr99se/index.php
