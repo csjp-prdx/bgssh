@@ -1,6 +1,6 @@
 #!/usr/bin/env lua
 
-package.preload[ "conf" ] = assert( (loadstring or load)( "local serpent = require \"serpent\"\
+package.preload["conf"] = assert((loadstring or load)("local serpent = require \"serpent\"\
 \
 function ReadConf(path)\
     local file = io.open(path, \"r\")\
@@ -54,9 +54,9 @@ function GenConf(entries)\
     end\
     return conf\
 end\
-", '@'.."./conf.lua" ) )
+"    , '@' .. "./conf.lua"))
 
-package.preload[ "dir" ] = assert( (loadstring or load)( "local getch  = require \"lua-getch\"\
+package.preload["dir"] = assert((loadstring or load)("local getch  = require \"lua-getch\"\
 local lfs    = require \"lfs\"\
 local term   = require 'term'\
 local colors = term.colors\
@@ -278,9 +278,9 @@ end\
 \
 -- TEST\
 -- print(SelectFile({ h = 8 }))\
-", '@'.."./dir.lua" ) )
+"    , '@' .. "./dir.lua"))
 
-assert( (loadstring or load)( "\
+assert((loadstring or load)("\
 \
 require \"conf\"\
 require \"dir\"\
@@ -412,7 +412,7 @@ function ManageList(list)\
                     ,\
                     list[3][3], list[1][3], list[2][3])\
                 )\
-                os.execute(\"open http://localhost:8000/gr99se/index.php\")\
+                os.execute(\"open http://localhost:8000\")\
                 if val ~= true then\
                     local ef = io.open(\"/tmp/bgssh.err\")\
                     if ef ~= nil then\
@@ -454,5 +454,4 @@ function Main()\
 end\
 \
 Main()\
-", '@'.."bgssh.lua" ) )( ... )
-
+"    , '@' .. "bgssh.lua"))(...)

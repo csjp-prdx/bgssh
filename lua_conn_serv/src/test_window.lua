@@ -15,7 +15,7 @@ function demo:init()
     table.insert(settings_tbl, menuconf.string { value = "", description = "Path to key." })
     table.insert(settings_tbl, menuconf.string { value = "", description = "Username" })
 
-    -- ssh -fo ExitOnForwardFailure=yes -i " .. Key .. " " .. Uname .. "@34.221.74.121 -N -L 8000:localhost:80
+    -- ssh
 
     self:dialog_mconf():load(settings_tbl)
     self:insert(self:dialog_mconf())

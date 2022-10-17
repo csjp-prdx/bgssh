@@ -20,7 +20,7 @@ function conn2Srv() {
         $(ssh -fo ExitOnForwardFailure=yes -i $key $username@$host -N -L 8000:localhost:80 >/dev/null 2>&1)
     fi
 
-    open http://localhost:8000/gr99se/index.php
+    open "http://localhost:8000/$subdir"
 }
 
 function getKeyInput() {
@@ -66,18 +66,20 @@ function readConf() {
         printf "$(cat $CONF | grep -m1 'USERNAME' | awk -F'"' '{print $4}')\n"
         printf "$(cat $CONF | grep -m1 'HOST' | awk -F'"' '{print $4}')\n"
         printf "$(cat $CONF | grep -m1 'KEY' | awk -F'"' '{print $4}')\n"
+        printf "$(cat $CONF | grep -m1 'SUBDIR' | awk -F'"' '{print $4}')\n"
     else
         printf "$USER\n"
         printf "$(ifconfig -a | grep 'inet' | grep -m1 'broadcast' | awk -F' ' '{print $2}')\n"
         printf "$HOME\n"
+        printf "/\n"
     fi
 }
 
 function writeConf() {
-    diff $CONF <(printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n}") >/dev/null 2>&1
+    diff $CONF <(printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n\t\"SUBDIR\":\"$subdir\"\n}") >/dev/null 2>&1
     if ! [[ "$?" -eq 0 ]]; then
         # If the configuration has not changed, don't save
-        printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n}" >$CONF
+        printf "{\n\t\"USERNAME\":\"$username\",\n\t\"HOST\":\"$host\",\n\t\"KEY\":\"$key\"\n\t\"SUBDIR\":\"$subdir\"\n}" >$CONF
     fi
 }
 
@@ -90,15 +92,15 @@ function showEntry() {
         printf "$host"
     elif [[ "$1" -eq 3 ]]; then
         printf "$key"
+    elif [[ "$1" -eq 4 ]]; then
+        printf "$subdir"
     fi
     tput rc
 }
 
 function modEntry() {
     tput smul
-    [[ $SEL = 1 ]] && movePos 12 1
-    [[ $SEL = 2 ]] && movePos 12 2
-    [[ $SEL = 3 ]] && movePos 12 3
+    movePos 12 $SEL
     showEntry $SEL
 
     while true; do
@@ -109,20 +111,20 @@ function modEntry() {
             [[ $SEL = 1 ]] && username=$(echo "$username" | sed 's/.$//')
             [[ $SEL = 2 ]] && host=$(echo "$host" | sed 's/.$//')
             [[ $SEL = 3 ]] && key=$(echo "$key" | sed 's/.$//')
+            [[ $SEL = 4 ]] && subdir=$(echo "$subdir" | sed 's/.$//')
             showEntry $SEL
         elif ! [[ "$val" =~ "_[a-z]+" ]] && [[ "$val" =~ "[a-zA-Z0-9.-/]" ]]; then
             [[ $SEL = 1 ]] && username+="$val"
             [[ $SEL = 2 ]] && host+="$val"
             [[ $SEL = 3 ]] && key+="$val"
+            [[ $SEL = 4 ]] && subdir+="$val"
             showEntry $SEL
         fi
     done
 
     tput rmul
     showEntry $SEL
-    [[ $SEL = 1 ]] && movePos '-12' '-1'
-    [[ $SEL = 2 ]] && movePos '-12' '-2'
-    [[ $SEL = 3 ]] && movePos '-12' '-3'
+    movePos "-12" "-$SEL"
 }
 
 function main() {
@@ -139,16 +141,17 @@ function main() {
     printf " SERVER CONNECTION CONFIG \n"
     tput sgr0
 
-    movePos 1 6
+    movePos 1 7
     tput setaf 4
     printf "Q:Quit  S:Save  C:Connect\n"
     tput sgr0
-    movePos -1 -5
+    movePos -1 -6
 
     {
         read -r username
         read -r host
         read -r key
+        read -r subdir
     } <<<$(readConf)
 
     movePos 0 1
@@ -160,7 +163,10 @@ function main() {
     movePos 0 1
     [ $SEL = 3 ] && printf "> " || printf "  "
     printf "Key:      $key"
-    movePos 0 -3
+    movePos 0 1
+    [ $SEL = 3 ] && printf "> " || printf "  "
+    printf "SubDir:   $subdir"
+    movePos 0 -4
 
     while true; do
         while true; do
@@ -172,7 +178,7 @@ function main() {
                     break
                 fi
             elif [[ "$val" = '_down' ]]; then
-                if [[ $SEL -lt 3 ]]; then
+                if [[ $SEL -lt 4 ]]; then
                     PSEL=$SEL
                     SEL=$((SEL + 1))
                     break
@@ -200,7 +206,10 @@ function main() {
         movePos 0 1
         [ $SEL = 3 ] && tput el && printf "> Key:      $key"
         [ $PSEL = 3 ] && tput el && printf "  Key:      $key"
-        movePos 0 -3
+        movePos 0 1
+        [ $SEL = 4 ] && tput el && printf "> SubDir:   $subdir"
+        [ $PSEL = 4 ] && tput el && printf "  SubDir:   $subdir"
+        movePos 0 -4
     done
 
     tput clear # clear the screen

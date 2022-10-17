@@ -130,7 +130,7 @@ function ManageList(list)
                     ,
                     list[3][3], list[1][3], list[2][3])
                 )
-                os.execute("open http://localhost:8000/gr99se/index.php")
+                os.execute("open http://localhost:8000")
                 if val ~= true then
                     local ef = io.open("/tmp/bgssh.err")
                     if ef ~= nil then
