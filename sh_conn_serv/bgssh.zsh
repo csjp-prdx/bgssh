@@ -2,7 +2,9 @@
 IFS=''
 
 X=0
+X_OFF=2
 Y=0
+Y_OFF=2
 SEL=1
 PSEL=0
 CONF="/var/tmp/bgssh.json"
@@ -131,17 +133,12 @@ function main() {
     tput civis
     tput clear # clear the screen
 
-    movePos 15 1
-    tput setaf 3 # Set a foreground colour using ANSI escape
-    printf "Testing v0.1.2.\n"
-    tput sgr0
-
-    movePos -2 2
+    movePos $X_OFF 1
     tput rev # Set reverse video mode
     printf " SERVER CONNECTION CONFIG \n"
     tput sgr0
 
-    movePos 1 7
+    movePos 0 7
     tput setaf 4
     printf "Q:Quit  S:Save  C:Connect\n"
     tput sgr0
