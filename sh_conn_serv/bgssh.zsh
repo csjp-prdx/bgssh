@@ -4,7 +4,6 @@ IFS=''
 X=0
 X_OFF=2
 Y=0
-Y_OFF=2
 SEL=1
 PSEL=0
 CONF="/var/tmp/bgssh.json"
@@ -130,7 +129,7 @@ function modEntry() {
 }
 
 function main() {
-    tput civis
+    tput civis # make the cursor invisible
     tput clear # clear the screen
 
     movePos $X_OFF 1
@@ -206,7 +205,7 @@ function main() {
     done
 
     tput clear # clear the screen
-    tput cnorm
+    tput cnorm # make the cursor visible
 }
 
 main
