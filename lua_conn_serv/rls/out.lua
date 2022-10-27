@@ -4,7 +4,6 @@ IFS=''
 X=0
 X_OFF=2
 Y=0
-Y_OFF=2
 SEL=1
 PSEL=0
 CONF="/var/tmp/bgssh.json"
@@ -12,10 +11,10 @@ CONF="/var/tmp/bgssh.json"
 function conn2Srv() {
     local PID=$(ps -ef | grep "ssh -fo ExitOnForwardFailure=yes -i $key $username@$host" | grep -v 'grep' | awk '{print $2}' 2>/dev/null)
 
-    if [[ "$?" -eq 0 ]]; then
+    if ! [[ -z "$PID" ]]; then
         $(ping localhost:8000 -c1 >/dev/null 2>&1)
         if ! [[ "$?" -eq 0 ]]; then
-            kill $PID
+            kill "$PID"
             $(ssh -fo ExitOnForwardFailure=yes -i $key $username@$host -N -L 8000:localhost:80 >/dev/null 2>&1)
         fi
     else
@@ -130,7 +129,7 @@ function modEntry() {
 }
 
 function main() {
-    tput civis
+    tput civis # make the cursor invisible
     tput clear # clear the screen
 
     movePos $X_OFF 1
@@ -206,7 +205,7 @@ function main() {
     done
 
     tput clear # clear the screen
-    tput cnorm
+    tput cnorm # make the cursor visible
 }
 
 main
