@@ -3,6 +3,9 @@
 .sh
 
 .luarc.json
-js_conn_serv/node_modules
-js_conn_serv/package-lock.json
-js_conn_serv/package.json
+js_conn_serv
+js_conn_serv
+js_conn_serv
+lua_conn_serv
+ps_conn_srv
+py_conn_serv

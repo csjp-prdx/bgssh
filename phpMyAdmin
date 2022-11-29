@@ -1,9 +1,7 @@
 #!/usr/bin/env zsh
 
-clear
 osascript -e 'tell application "Terminal" to activate'
 
-bgssh
+/usr/local/bin/bgssh
 
-clear
 osascript -e 'tell application "Terminal" to quit'
