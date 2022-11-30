@@ -8,19 +8,30 @@ SEL=1
 PSEL=0
 CONF="/var/tmp/bgssh.json"
 
+function TRAPINT() {
+   tput clear # clear the screen
+   tput cnorm # make the cursor visible
+   exit
+}
+
 function conn2Srv() {
+   movePos 7 $((8 - $SEL))
    local PID=$(ps -ef | grep "ssh -fo ExitOnForwardFailure=yes -i $key $username@$host" | grep -v 'grep' | awk '{print $2}' 2> /dev/null)
 
    if ! [[ -z "$PID" ]]; then
       $(ping localhost:8000 -c1 > /dev/null 2>&1)
       if ! [[ "$?" -eq 0 ]]; then
          kill "$PID"
-         $(ssh -fo ExitOnForwardFailure=yes -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
+         $(ssh -fo ExitOnForwardFailure=yes -o ConnectTimeout=1 -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
       fi
    else
-      $(ssh -fo ExitOnForwardFailure=yes -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
+      tput setaf 0
+      printf "[Connecting]"
+      tput sgr0
+      $(ssh -fo ExitOnForwardFailure=yes -o ConnectTimeout=1 -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
    fi
 
+   movePos -7 -$((8 - $SEL))
    open "http://localhost:8000/$subdir"
 }
 
