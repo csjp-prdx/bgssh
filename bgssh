@@ -7,6 +7,7 @@ Y=0
 SEL=1
 PSEL=0
 CONF="/var/tmp/bgssh.json"
+CONN_CMD=""
 
 function TRAPINT() {
    tput clear # clear the screen
@@ -16,19 +17,20 @@ function TRAPINT() {
 
 function conn2Srv() {
    movePos 7 $((8 - $SEL))
-   local PID=$(ps -ef | grep "ssh -fo ExitOnForwardFailure=yes -i $key $username@$host" | grep -v 'grep' | awk '{print $2}' 2> /dev/null)
+   local PID=$(ps -ef | grep "$CONN_CMD" | grep -v 'grep' | awk '{print $2}' 2> /dev/null)
 
    if ! [[ -z "$PID" ]]; then
-      $(ping localhost:8000 -c1 > /dev/null 2>&1)
-      if ! [[ "$?" -eq 0 ]]; then
+      local ret=$(nmap -p 8000 localhost | grep -o '8000.*$' | awk '{print $2}')
+
+      if [[ "$ret" = "closed" ]]; then
          kill "$PID"
-         $(ssh -fo ExitOnForwardFailure=yes -o ConnectTimeout=1 -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
+         $(eval "$CONN_CMD" > /dev/null 2>&1)
       fi
    else
       tput setaf 0
       printf "[Connecting]"
       tput sgr0
-      $(ssh -fo ExitOnForwardFailure=yes -o ConnectTimeout=1 -i $key $username@$host -N -L 8000:localhost:80 > /dev/null 2>&1)
+      $(eval "$CONN_CMD" > /dev/null 2>&1)
    fi
 
    movePos -7 -$((8 - $SEL))
@@ -160,6 +162,8 @@ function main() {
       read -r key
       read -r subdir
    } <<< $(readConf)
+
+   CONN_CMD="ssh -fo ExitOnForwardFailure=yes -o ConnectTimeout=1 -i $key $username@$host -N -L 8000:localhost:80"
 
    movePos 0 1
    printf "> Username: $username"
