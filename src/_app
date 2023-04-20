@@ -1,0 +1,70 @@
+#!/usr/bin/env zsh
+#
+# https://cloford.com/resources/charcodes/utf-8_box-drawing.htm
+################################################################################
+
+up_n() {
+	printf '\e[%sA' $1
+}
+
+down_n() {
+	printf '\e[%sB' $1
+}
+
+right_n() {
+	printf '\e[%sC' $1
+}
+
+left_n() {
+	printf '\e[%sD' $1
+}
+
+w_clear() {
+	printf '\e[2J'
+}
+
+w_ceil() {
+    printf '\e[H'
+}
+
+w_floor() {
+    printf '\e[%s;%sH' $LINES $COLUMNS
+}
+
+box() {
+    local XS=$1
+    local YS=$2
+
+	printf "${(l:$XS*2::%b:)}" "\U0000256D${(l:10*$XS-20::\U00002500:)}\U0000256E"
+    down_n 1
+	left_n $XS
+
+	for _row in $(seq $(($YS-2)) ); do
+	    printf "${(l:$XS*2::%b:)}" "\U00002502${(l:$XS-2:: :)}\U00002502"
+        down_n 1
+	    left_n $XS
+	done
+
+	printf "${(l:$XS*2::%b:)}" "\U00002570${(l:10*$XS-20::\U00002500:)}\U0000256F"
+    down_n 1
+	left_n $XS
+}
+
+################################################################################
+################################################################################
+
+window() {
+    w_ceil
+    down_n 5
+    right_n 5
+    box $(($COLUMNS - 10)) $(($LINES - 10))
+    w_floor
+}
+
+app() {
+    w_clear
+    window
+}
+
+app
+sleep 1

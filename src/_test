@@ -1,0 +1,12 @@
+#!/usr/bin/env zsh
+
+buffer() {
+  [ $# -eq 1 ] && echo $1 && return
+	[ $# -gt 1 ] && {
+	  local _b=$1
+	  shift
+	  echo "$_b$(buffer $@)"
+	}
+}
+
+buffer a b c
